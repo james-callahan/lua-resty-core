@@ -25,6 +25,7 @@ Table of Contents
     * [parse_pem_priv_key](#parse_pem_priv_key)
     * [set_cert](#set_cert)
     * [set_priv_key](#set_priv_key)
+    * [get_ssl_pointer](#get_ssl_pointer)
 * [Community](#community)
     * [English Mailing List](#english-mailing-list)
     * [Chinese Mailing List](#chinese-mailing-list)
@@ -467,6 +468,22 @@ Note that this `set_priv_key` function will run slightly faster, in terms of CPU
 which do not require any additional conversion needed to be performed by the SSL library during the SSL handshake.
 
 This function was first added in version `0.1.7`.
+
+[Back to TOC](#table-of-contents)
+
+get_ssl_pointer
+------------
+**syntax:** *ssl_ptr, err = ssl.get_ssl_pointer()*
+
+**context:** *any*
+
+Retrieves the OpenSSL `SSL*` object for the current connection.
+
+Returns an FFI pointer on success, or a `nil` value and a string describing the error otherwise.
+
+If you need to retain the pointer beyond the current phase then you will need to use OpenSSL's `SSL_up_ref` to increase the reference count. If you do, ensure that your reference is released with `SSL_free`.
+
+This function was first added in version `0.1.16`.
 
 [Back to TOC](#table-of-contents)
 

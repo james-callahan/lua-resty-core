@@ -59,6 +59,8 @@ int ngx_http_lua_ffi_set_cert(void *r, void *cdata, char **err);
 
 int ngx_http_lua_ffi_set_priv_key(void *r, void *cdata, char **err);
 
+void *ngx_http_lua_ffi_get_ssl_pointer(void *r);
+
 void ngx_http_lua_ffi_free_cert(void *cdata);
 
 void ngx_http_lua_ffi_free_priv_key(void *cdata);
@@ -284,6 +286,21 @@ function _M.set_priv_key(priv_key)
     end
 
     return nil, ffi_str(errmsg[0])
+end
+
+
+function _M.get_ssl_pointer()
+    local r = getfenv(0).__ngx_req
+    if not r then
+        error("no request found")
+    end
+
+    local ssl = C.ngx_http_lua_ffi_get_ssl_pointer(r)
+    if ssl == nil then
+        return nil, "no ssl object"
+    end
+
+    return ssl
 end
 
 
