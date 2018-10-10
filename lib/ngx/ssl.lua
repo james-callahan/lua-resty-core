@@ -33,6 +33,7 @@ local ngx_lua_ffi_parse_pem_cert
 local ngx_lua_ffi_parse_pem_priv_key
 local ngx_lua_ffi_set_cert
 local ngx_lua_ffi_set_priv_key
+local ngx_lua_ffi_get_ssl_pointer
 local ngx_lua_ffi_free_cert
 local ngx_lua_ffi_free_priv_key
 
@@ -75,6 +76,8 @@ if subsystem == 'http' then
 
     int ngx_http_lua_ffi_set_priv_key(void *r, void *cdata, char **err);
 
+    void *ngx_http_lua_ffi_get_ssl_pointer(void *r);
+
     void ngx_http_lua_ffi_free_cert(void *cdata);
 
     void ngx_http_lua_ffi_free_priv_key(void *cdata);
@@ -95,6 +98,7 @@ if subsystem == 'http' then
     ngx_lua_ffi_parse_pem_priv_key = C.ngx_http_lua_ffi_parse_pem_priv_key
     ngx_lua_ffi_set_cert = C.ngx_http_lua_ffi_set_cert
     ngx_lua_ffi_set_priv_key = C.ngx_http_lua_ffi_set_priv_key
+    ngx_lua_ffi_get_ssl_pointer = C.ngx_http_lua_ffi_get_ssl_pointer
     ngx_lua_ffi_free_cert = C.ngx_http_lua_ffi_free_cert
     ngx_lua_ffi_free_priv_key = C.ngx_http_lua_ffi_free_priv_key
 
@@ -137,6 +141,8 @@ elseif subsystem == 'stream' then
 
     int ngx_stream_lua_ffi_set_priv_key(void *r, void *cdata, char **err);
 
+    void *ngx_stream_lua_ffi_get_ssl_pointer(void *r);
+
     void ngx_stream_lua_ffi_free_cert(void *cdata);
 
     void ngx_stream_lua_ffi_free_priv_key(void *cdata);
@@ -157,6 +163,7 @@ elseif subsystem == 'stream' then
     ngx_lua_ffi_parse_pem_priv_key = C.ngx_stream_lua_ffi_parse_pem_priv_key
     ngx_lua_ffi_set_cert = C.ngx_stream_lua_ffi_set_cert
     ngx_lua_ffi_set_priv_key = C.ngx_stream_lua_ffi_set_priv_key
+    ngx_lua_ffi_get_ssl_pointer = C.ngx_stream_lua_ffi_get_ssl_pointer
     ngx_lua_ffi_free_cert = C.ngx_stream_lua_ffi_free_cert
     ngx_lua_ffi_free_priv_key = C.ngx_stream_lua_ffi_free_priv_key
 end
@@ -380,6 +387,21 @@ function _M.set_priv_key(priv_key)
     end
 
     return nil, ffi_str(errmsg[0])
+end
+
+
+function _M.get_ssl_pointer()
+    local r = getfenv(0).__ngx_req
+    if not r then
+        error("no request found")
+    end
+
+    local ssl = ngx_lua_ffi_get_ssl_pointer(r)
+    if ssl == nil then
+        return nil, "no ssl object"
+    end
+
+    return ssl
 end
 
 
